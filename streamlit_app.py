@@ -101,13 +101,13 @@ with col4:
 with col5:
     input_heart = st.radio("Do you have heart disease?", options=[0, 1], format_func=lambda x: "Yes" if x else "No")
 
-# Filter the dataset to match user profile
+# Widened filter for better matches
 user_filter = df[
     (df['smoking_status'] == input_smoking) &
     (df['hypertension'] == input_hypertension) &
     (df['heart_disease'] == input_heart) &
-    (df['age'].between(input_age - 5, input_age + 5)) &
-    (df['avg_glucose_level'].between(input_glucose - 10, input_glucose + 10))
+    (df['age'].between(input_age - 10, input_age + 10)) &
+    (df['avg_glucose_level'].between(input_glucose - 30, input_glucose + 30))
 ]
 
 if len(user_filter) > 0:
