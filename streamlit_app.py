@@ -116,8 +116,7 @@ if len(user_filter) >= 10:
     st.success(f"Estimated stroke rate among similar individuals: **{estimated_risk:.2%}**")
 elif len(user_filter) > 0:
     estimated_risk = user_filter['stroke'].mean()
-    st.warning(f"Limited data: Only {len(user_filter)} similar individuals found.
-Estimated stroke rate: **{estimated_risk:.2%}**")
+    st.warning("Limited data: Only {} similar individuals found.\nEstimated stroke rate: **{:.2%}**".format(len(user_filter), estimated_risk))
 else:
     fallback_group = pd.cut([input_age], bins=[0, 30, 45, 60, 75, 100],
                             labels=['<30', '30–45', '45–60', '60–75', '75+'])[0]
