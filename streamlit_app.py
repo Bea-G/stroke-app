@@ -84,6 +84,38 @@ with col2:
     ax5.set_xlabel("Heart Disease (0=No, 1=Yes)")
     st.pyplot(fig5)
 
+# Personal stroke risk estimator
+st.subheader("🧮 Personal Stroke Risk Estimator")
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    input_age = st.slider("Your Age", 0, 100, 50)
+with col2:
+    input_glucose = st.slider("Your Avg. Glucose Level", 50, 300, 120)
+with col3:
+    input_smoking = st.selectbox("Your Smoking Status", options=['never smoked', 'formerly smoked', 'smokes'])
+
+col4, col5 = st.columns(2)
+with col4:
+    input_hypertension = st.radio("Do you have hypertension?", options=[0, 1], format_func=lambda x: "Yes" if x else "No")
+with col5:
+    input_heart = st.radio("Do you have heart disease?", options=[0, 1], format_func=lambda x: "Yes" if x else "No")
+
+# Filter the dataset to match user profile
+user_filter = df[
+    (df['smoking_status'] == input_smoking) &
+    (df['hypertension'] == input_hypertension) &
+    (df['heart_disease'] == input_heart) &
+    (df['age'].between(input_age - 5, input_age + 5)) &
+    (df['avg_glucose_level'].between(input_glucose - 10, input_glucose + 10))
+]
+
+if len(user_filter) > 0:
+    estimated_risk = user_filter['stroke'].mean()
+    st.success(f"Estimated stroke rate among similar individuals: **{estimated_risk:.2%}**")
+else:
+    st.warning("Not enough similar records in the dataset to estimate risk.")
+
 # Insights
 st.subheader("🧠 Key Insights")
 st.markdown("""
