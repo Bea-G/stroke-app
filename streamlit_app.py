@@ -10,7 +10,6 @@ st.set_page_config(page_title="Stroke Prediction Dashboard", layout="wide")
 st.title("🧠 Stroke Prediction – Data Science Midterm Project")
 st.markdown("A data-driven exploration of stroke risk factors based on health and demographic data.")
 
-# Load dataset
 @st.cache_data
 def load_data():
     df = pd.read_csv("healthcare-dataset-stroke-data.csv")
@@ -35,7 +34,7 @@ df_filtered = df[
     (df['smoking_status'].isin(selected_smoking))
 ]
 
-# Show filtered data summary
+# Dataset summary
 st.subheader("📊 Dataset Summary (Filtered)")
 st.write(df_filtered.describe())
 
@@ -84,7 +83,7 @@ with col2:
     ax5.set_xlabel("Heart Disease (0=No, 1=Yes)")
     st.pyplot(fig5)
 
-# Personal stroke risk estimator
+# Stroke Risk Estimator
 st.subheader("🧮 Personal Stroke Risk Estimator")
 
 col1, col2, col3 = st.columns(3)
@@ -101,7 +100,7 @@ with col4:
 with col5:
     input_heart = st.radio("Do you have heart disease?", options=[0, 1], format_func=lambda x: "Yes" if x else "No")
 
-# Widened filter for better matches
+# Filter for similar individuals
 user_filter = df[
     (df['smoking_status'] == input_smoking) &
     (df['hypertension'] == input_hypertension) &
@@ -110,13 +109,25 @@ user_filter = df[
     (df['avg_glucose_level'].between(input_glucose - 30, input_glucose + 30))
 ]
 
-if len(user_filter) > 0:
+st.markdown("#### Matching individuals found in the dataset: **{}**".format(len(user_filter)))
+
+if len(user_filter) >= 10:
     estimated_risk = user_filter['stroke'].mean()
     st.success(f"Estimated stroke rate among similar individuals: **{estimated_risk:.2%}**")
+elif len(user_filter) > 0:
+    estimated_risk = user_filter['stroke'].mean()
+    st.warning(f"Limited data: Only {len(user_filter)} similar individuals found.
+Estimated stroke rate: **{estimated_risk:.2%}**")
 else:
-    st.warning("Not enough similar records in the dataset to estimate risk.")
+    fallback_group = pd.cut([input_age], bins=[0, 30, 45, 60, 75, 100],
+                            labels=['<30', '30–45', '45–60', '60–75', '75+'])[0]
+    group_risk = stroke_by_age[stroke_by_age['age_group'] == fallback_group]['stroke'].values
+    if len(group_risk) > 0:
+        st.info(f"No exact matches found. Based on your age group ({fallback_group}), the average stroke rate is: **{group_risk[0]:.2%}**")
+    else:
+        st.error("No matching individuals found and no fallback age group available.")
 
-# Insights
+# Insights and Summary
 st.subheader("🧠 Key Insights")
 st.markdown("""
 1. **Stroke risk increases with age** – especially after 60 years.
@@ -125,7 +136,6 @@ st.markdown("""
 4. **Former smokers** have the highest stroke rate among smoking groups.
 """)
 
-# Summary
 st.subheader("📝 Summary")
 st.markdown("""
 These findings confirm known medical patterns and validate the dataset's reliability.  
